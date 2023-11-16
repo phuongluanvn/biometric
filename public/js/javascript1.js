@@ -4,13 +4,37 @@ let auth0Client = null;
 /**
  * Starts the authentication flow
  */
+function hello() {
+  const header = document.querySelector('h2');
+  console.log("Hello from webview");
+  header.innerText = 'Hello';
+  testReceiveFromWeb.postMessage('1,2,3');
+}
+
+function checkLogin() {
+  console.log("Check login success from web");
+  testPushFromFlutter.postMessage('Login success');
+}
+
+function updateIsMobileApp(isMobile) {
+  console.log("updateIsMobileApp = ", isMobile);
+  localStorage.setItem('isMobileApp', isMobile); 
+}
+
+function getMobileData() {
+  // const header = document.querySelector('h2');
+  // header.innerText = 'Hello';
+  let isMobileApp = localStorage.getItem('isMobileApp'); 
+  console.log("getMobileData = ", isMobileApp);
+}
+
 const login = async (targetUrl) => {
   try {
     console.log("Logging in", targetUrl);
 
     const options = {
       authorizationParams: {
-        redirect_uri: window.location.origin
+        redirect_uri: "https://www.google.com/"
       }
     };
 
@@ -43,20 +67,18 @@ const logout = async () => {
 /**
  * Retrieves the auth configuration from the server
  */
-const fetchAuthConfig = () => fetch("/auth_config.json");
 
 /**
  * Initializes the Auth0 client
  */
 const configureClient = async () => {
-  const response = await fetchAuthConfig();
-  const config = await response.json();
+
 
   auth0Client = await auth0.createAuth0Client({
-    domain: config.domain,
-    clientId: config.clientId,
+    domain: "zonar-dev.auth0.com",
+    clientId: "NhaFhctl0tKvd7m9Daz6nJau09FQyKfm",
     authorizationParams: {
-      audience: config.audience
+      audience: "http://localhost:3000/"
     }
   });
 };

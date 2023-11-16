@@ -26,7 +26,7 @@ app.get("/api/external", checkJwt, (req, res) => {
   });
 });
 
-app.get("/auth_config.json", (req, res) => {
+app.get("./auth_config.json", (req, res) => {
   res.sendFile(join(__dirname, "auth_config.json"));
 });
 
