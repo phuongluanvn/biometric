@@ -24,10 +24,6 @@ const login = async (targetUrl) => {
   }
 };
 
-const checkLogin = async () => {
-    console.log("check Login with Luan");
-};
-
 /**
  * Executes the logout flow
  */
