@@ -34,7 +34,7 @@ const login = async (targetUrl) => {
 
     const options = {
       authorizationParams: {
-        redirect_uri: "https://www.google.com/"
+        redirect_uri: window.location.origin
       }
     };
 
