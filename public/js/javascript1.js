@@ -168,7 +168,7 @@ window.onload = async () => {
   const shouldParseResultWithToken = query.includes("bio=true");
   console.log("Luan 1");
   if (shouldParseResultWithToken) {
-    console.log("> Parsing redirect token");
+    console.log(">get Token silently");
     try {
       const result = await auth0Client.getTokenSilently();
 
@@ -184,9 +184,9 @@ window.onload = async () => {
     try {
       const result = await auth0Client.handleRedirectCallback();
 
-      if (result.appState && result.appState.targetUrl) {
-        showContentFromUrl(result.appState.targetUrl);
-      }
+      // if (result.appState && result.appState.targetUrl) {
+      //   showContentFromUrl(result.appState.targetUrl);
+      // }
 
       console.log("Logged in!");
     } catch (err) {
