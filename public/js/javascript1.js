@@ -80,7 +80,9 @@ const configureClient = async () => {
     clientId: "NhaFhctl0tKvd7m9Daz6nJau09FQyKfm",
     authorizationParams: {
       audience: "http://localhost:3000/"
-    }
+    },
+    cacheLocation: "localstorage",
+    useRefreshTokens: true,
   });
 };
 
@@ -184,9 +186,9 @@ window.onload = async () => {
     try {
       const result = await auth0Client.handleRedirectCallback();
 
-      // if (result.appState && result.appState.targetUrl) {
-      //   showContentFromUrl(result.appState.targetUrl);
-      // }
+      if (result.appState && result.appState.targetUrl) {
+        showContentFromUrl(result.appState.targetUrl);
+      }
 
       console.log("Logged in!");
     } catch (err) {
