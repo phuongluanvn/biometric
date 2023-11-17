@@ -170,11 +170,12 @@ window.onload = async () => {
   if (shouldParseResult) {
     console.log("> Parsing redirect");
     try {
-      const result = await auth0Client.handleRedirectCallback();
+      const result = await auth0Client.getTokenSilently();
+      console.log("Luan Result", result);
 
-      if (result.appState && result.appState.targetUrl) {
-        showContentFromUrl(result.appState.targetUrl);
-      }
+      // if (result.appState && result.appState.targetUrl) {
+      //   showContentFromUrl(result.appState.targetUrl);
+      // }
 
       console.log("Logged in!");
     } catch (err) {
