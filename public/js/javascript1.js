@@ -164,18 +164,18 @@ window.onload = async () => {
   console.log("> User not authenticated");
 
   const query = window.location.search;
-  // const shouldParseResult = query.includes("code=") && query.includes("state=");
-  const shouldParseResult = query.includes("bio=true");
+  const shouldParseResult = query.includes("code=") && query.includes("state=");
+  // const shouldParseResult = query.includes("bio=true");
   console.log("Luan 1");
   if (shouldParseResult) {
     console.log("> Parsing redirect");
     try {
-      const result = await auth0Client.getTokenSilently();
-      console.log("Luan Result", result);
+      // const result = await auth0Client.getTokenSilently();
+      // console.log("Luan Result", result);
 
-      // if (result.appState && result.appState.targetUrl) {
-      //   showContentFromUrl(result.appState.targetUrl);
-      // }
+      if (result.appState && result.appState.targetUrl) {
+        showContentFromUrl(result.appState.targetUrl);
+      }
 
       console.log("Logged in!");
     } catch (err) {
