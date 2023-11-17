@@ -43,6 +43,7 @@ const login = async (targetUrl) => {
     }
 
     await auth0Client.loginWithRedirect(options);
+    console.log("Luan login link", window.location.origin.toString);
   } catch (err) {
     console.log("Log in failed", err);
   }
