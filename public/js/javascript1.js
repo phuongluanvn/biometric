@@ -6,6 +6,7 @@ let auth0Client = null;
  */
 function hello() {
   const header = document.querySelector('h2');
+  const header1 = document.getElementsByClassName('');
   console.log("Hello from webview");
   header.innerText = 'Hello';
   testReceiveFromWeb.postMessage('1,2,3');
@@ -43,7 +44,6 @@ const login = async (targetUrl) => {
     }
 
     await auth0Client.loginWithRedirect(options);
-    console.log("Luan login link", window.location.origin.toString);
   } catch (err) {
     console.log("Log in failed", err);
   }
@@ -164,8 +164,9 @@ window.onload = async () => {
   console.log("> User not authenticated");
 
   const query = window.location.search;
-  const shouldParseResult = query.includes("code=") && query.includes("state=");
-
+  // const shouldParseResult = query.includes("code=") && query.includes("state=");
+  const shouldParseResult = query.includes("bio=true");
+  console.log("Luan 1");
   if (shouldParseResult) {
     console.log("> Parsing redirect");
     try {
