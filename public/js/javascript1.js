@@ -68,7 +68,7 @@ const logout = async () => {
 
 function logoutWithOutClearToken() {
   try {
-    console.log("Logging out without clear token");
+    console.log("Logging out without clear token", localStorage.getItem("loginUrl"));
     window.location.href = localStorage.getItem("loginUrl"); 
   } catch (err) {
     console.log("Log out failed", err);
