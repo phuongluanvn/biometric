@@ -1,6 +1,47 @@
 // The Auth0 client, initialized in configureClient()
 let auth0Client = null;
-let currentUrl = "";
+
+let TOKEN_ID_KEY = "@@auth0spajs@@::NhaFhctl0tKvd7m9Daz6nJau09FQyKfm::@@user@@"
+let TOKEN_INFO_KEY = "@@auth0spajs@@::NhaFhctl0tKvd7m9Daz6nJau09FQyKfm::http://localhost:3000/::openid profile email offline_access"
+
+let BK_TOKEN_ID = "BK_TOKEN_ID"
+let BK_TOKEN_INFO = "BK_TOKEN_INFO"
+let isRefreshTokens = false;
+
+/**
+ * Flutter/Mobile function
+ */
+function mobileFun_backupAuth0Cache() {
+  backupAuth0Cache.postMessage("Backup Auth0 Cache");
+  
+}
+
+/**
+ * Flutter/Mobile function
+ */
+function mobileFun_restoreAuth0Cache() {
+  restoreAuth0Cache.postMessage("Restore Auth0 Cache");
+}
+
+/**
+ * Flutter/Mobile function
+ */
+async function mobileFun_handleBiometricLink() {
+ await handleBiometricLink.postMessage("Handle Biometric Link");
+}
+
+function mobileFun_isUseRefreshTokens() {
+  isUseRefreshTokens.postMessage("Update isRefreshToken");
+}
+
+function tokenFromLocalStorage() {
+  try {
+    return JSON.parse(localStorage.getItem(TOKEN_INFO_KEY)).body.access_token;
+  } catch (error) {
+    console.log(error);
+  }
+  return "";
+}
 
 /**
  * Starts the authentication flow
@@ -55,21 +96,18 @@ const login = async (targetUrl) => {
  */
 const logout = async () => {
   try {
+    // backup info
+    mobileFun_backupAuth0Cache();
+
+    
     console.log("Logging out");
     await auth0Client.logout({
       logoutParams: {
         returnTo: window.location.origin
       }
     });
-  } catch (err) {
-    console.log("Log out failed", err);
-  }
-};
 
-function logoutWithOutClearToken() {
-  try {
-    console.log("Logging out without clear token", localStorage.getItem("loginUrl"));
-    window.location.href = localStorage.getItem("loginUrl"); 
+    console.log("Logged out");
   } catch (err) {
     console.log("Log out failed", err);
   }
@@ -78,23 +116,46 @@ function logoutWithOutClearToken() {
 /**
  * Retrieves the auth configuration from the server
  */
+const fetchAuthConfig = () => fetch("/auth_config.json");
+
+// can copy this file to public/js/ for SPA only
+// const fetchAuthConfig = () => fetch("/js/auth_config.json");
 
 /**
  * Initializes the Auth0 client
  */
 const configureClient = async () => {
-
+  const response = await fetchAuthConfig();
+  const config = await response.json();
+  isUseRefreshTokens();
 
   auth0Client = await auth0.createAuth0Client({
-    domain: "zonar-dev.auth0.com",
-    clientId: "NhaFhctl0tKvd7m9Daz6nJau09FQyKfm",
+    domain: config.domain,
+    clientId: config.clientId,
     authorizationParams: {
-      audience: "http://localhost:3000/"
+      audience: config.audience
     },
     cacheLocation: "localstorage",
-    useRefreshTokens: true,
+    useRefreshTokens: isRefreshTokens,
   });
 };
+
+// /**
+//  * Initializes the Auth0 client
+//  */
+// const configureClient = async () => {
+
+
+//   auth0Client = await auth0.createAuth0Client({
+//     domain: "zonar-dev.auth0.com",
+//     clientId: "NhaFhctl0tKvd7m9Daz6nJau09FQyKfm",
+//     authorizationParams: {
+//       audience: "http://localhost:3000/"
+//     },
+//     cacheLocation: "localstorage",
+//     useRefreshTokens: true,
+//   });
+// };
 
 /**
  * Checks to see if the user is authenticated. If so, `fn` is executed. Otherwise, the user
@@ -116,7 +177,11 @@ const requireAuth = async (fn, targetUrl) => {
  */
 const callApi = async () => {
   try {
-    const token = await auth0Client.getTokenSilently();
+    // const token = await auth0Client.getTokenSilently();
+    
+    // use local token
+    const token = tokenFromLocalStorage();
+    console.log("> Call API with this token: " + token);
 
     const response = await fetch("/api/external", {
       headers: {
@@ -132,6 +197,7 @@ const callApi = async () => {
     document.querySelectorAll("pre code").forEach(hljs.highlightBlock);
 
     eachElement(".result-block", (c) => c.classList.add("show"));
+    console.log("> Call API OK");
   } catch (e) {
     console.error(e);
   }
@@ -143,20 +209,8 @@ window.onload = async () => {
 
   const query = window.location.search;
   const shouldParseResult = query.includes("code=") && query.includes("state=");
-  const shouldParseResultWithToken = query.includes("bio=true");
-  console.log("Luan 1");
-  if (shouldParseResultWithToken) {
-    console.log(">get Token silently");
-    try {
-      const result = await auth0Client.getTokenSilently();
 
-      console.log("Logged in with Token!");
-    } catch (err) {
-      console.log("Error parsing redirect:", err);
-    }
-
-    window.history.replaceState({}, document.title, "/");
-  }
+  mobileFun_handleBiometricLink();
 
   // If unable to parse the history hash, default to the root URL
   if (!showContentFromUrl(window.location.pathname)) {
@@ -191,8 +245,6 @@ window.onload = async () => {
   }
 
   console.log("> User not authenticated");
-
-
   if (shouldParseResult) {
     console.log("> Parsing redirect");
     try {
