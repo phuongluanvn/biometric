@@ -1,5 +1,6 @@
 // The Auth0 client, initialized in configureClient()
 let auth0Client = null;
+let currentUrl = "";
 
 /**
  * Starts the authentication flow
@@ -60,6 +61,15 @@ const logout = async () => {
         returnTo: window.location.origin
       }
     });
+  } catch (err) {
+    console.log("Log out failed", err);
+  }
+};
+
+function logoutWithOutClearToken() {
+  try {
+    console.log("Logging out without clear token");
+    window.location.href = localStorage.getItem("loginUrl"); 
   } catch (err) {
     console.log("Log out failed", err);
   }
@@ -131,6 +141,23 @@ const callApi = async () => {
 window.onload = async () => {
   await configureClient();
 
+  const query = window.location.search;
+  const shouldParseResult = query.includes("code=") && query.includes("state=");
+  const shouldParseResultWithToken = query.includes("bio=true");
+  console.log("Luan 1");
+  if (shouldParseResultWithToken) {
+    console.log(">get Token silently");
+    try {
+      const result = await auth0Client.getTokenSilently();
+
+      console.log("Logged in with Token!");
+    } catch (err) {
+      console.log("Error parsing redirect:", err);
+    }
+
+    window.history.replaceState({}, document.title, "/");
+  }
+
   // If unable to parse the history hash, default to the root URL
   if (!showContentFromUrl(window.location.pathname)) {
     showContentFromUrl("/");
@@ -165,22 +192,7 @@ window.onload = async () => {
 
   console.log("> User not authenticated");
 
-  const query = window.location.search;
-  const shouldParseResult = query.includes("code=") && query.includes("state=");
-  const shouldParseResultWithToken = query.includes("bio=true");
-  console.log("Luan 1");
-  if (shouldParseResultWithToken) {
-    console.log(">get Token silently");
-    try {
-      const result = await auth0Client.getTokenSilently();
 
-      console.log("Logged in with Token!");
-    } catch (err) {
-      console.log("Error parsing redirect:", err);
-    }
-
-    window.history.replaceState({}, document.title, "/");
-  }
   if (shouldParseResult) {
     console.log("> Parsing redirect");
     try {
